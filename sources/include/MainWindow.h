@@ -41,7 +41,4 @@ private:
     QAction* openAct;
     QAction* exitAct;
     QAction* aboutAct;
-
-    // 中心部件
-    QTextEdit* centralTextEdit; // 此处可替换为您的自定义OpenGL部件
 };

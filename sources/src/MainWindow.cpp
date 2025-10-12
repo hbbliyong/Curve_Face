@@ -84,7 +84,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::newFile()
 {
-    centralTextEdit->clear();
+  
     statusBar()->showMessage(tr("new file"), 2000);
 }
 

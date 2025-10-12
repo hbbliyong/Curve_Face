@@ -1,30 +1,13 @@
 #include "Renderer.hpp"
 #include <QDebug>
 #include <iostream>
-
-// 着色器源码
-const char* vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    void main()
-    {
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    }
-)";
-
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-    void main()
-    {
-        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    }
-)";
-
+#include "Core/Shader.hpp"
+#include <functional>
 Renderer::Renderer() 
-    : m_VAO(0), m_VBO(0), m_shaderProgram(0), 
+    : m_VAO(0), m_VBO(0),  
       m_initialized(false), m_viewportWidth(0), m_viewportHeight(0)
 {
+   
 }
 
 Renderer::~Renderer()
@@ -73,12 +56,13 @@ bool Renderer::initialize()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
-    // 创建着色器程序
-    m_shaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
-    if (m_shaderProgram == 0) {
-        qDebug() << "Failed to create shader program in Renderer";
-        return false;
-    }
+    glGenVertexArrays(1, &m_pointVAO);
+    glGenBuffers(1, &m_pointVBO);
+
+    glGenVertexArrays(1, &m_lineVAO);
+    glGenBuffers(1, &m_lineVBO);
+  //  m_shader = std::make_shared<Shader>("E:/001Code/002CurveAndFace/build/sources/Debug/assets/shaders/Base.vert", "E:/001Code/002CurveAndFace/build/sources/Debug/assets/shaders/Base.frag");
+    m_shader = std::make_shared<Shader>("assets/shaders/Base.vert", "assets/shaders/Base.frag");
     
     m_initialized = true;
     qDebug() << "Renderer initialized successfully";
@@ -87,17 +71,17 @@ bool Renderer::initialize()
 
 void Renderer::render()
 {
-    if (!m_initialized) {
+ /*   if (!m_initialized) {
         qDebug() << "Renderer not initialized!";
         return;
     }
     
     glClear(GL_COLOR_BUFFER_BIT);
     
-    glUseProgram(m_shaderProgram);
+    m_shader->use();
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+    glBindVertexArray(0);*/
 }
 
 void Renderer::resize(int width, int height)
@@ -105,6 +89,98 @@ void Renderer::resize(int width, int height)
     m_viewportWidth = width;
     m_viewportHeight = height;
     glViewport(0, 0, width, height);
+}
+
+void Renderer::setPoints(const std::vector<glm::vec2>& points)
+{
+}
+
+void Renderer::setLines(const std::vector<Line>& lines)
+{
+}
+
+void Renderer::setCurrentPoint(const glm::vec2& point)
+{
+}
+
+void Renderer::setDrawingMode(bool continuous)
+{
+}
+
+void Renderer::beginBatch()
+{
+    // 每一帧开始前，清空上一帧的数据
+    m_pointVertices.clear();
+    m_lineVertices.clear();
+}
+
+void Renderer::addPoint(const glm::vec2& position, const glm::vec3& color)
+{
+    Vertex v;
+    v.position = position;
+    v.color = color;
+    m_pointVertices.push_back(v);
+}
+
+void Renderer::addLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color)
+{
+    // 一条线需要两个顶点
+    //Vertex v1, v2;
+    //v1.position = start; v1.color = color;
+    //v2.position = end;   v2.color = color;
+    //m_lineVertices.push_back(v1);
+    //m_lineVertices.push_back(v2);
+    m_lineVertices.clear();
+    std::vector<glm::vec2> points;
+    std::transform(m_pointVertices.begin(), m_pointVertices.end(), std::back_inserter(points), [](const Vertex& v) {return v.position; });
+    
+    auto berizePoints = generatorBezier(points);
+    std::transform(berizePoints.begin(), berizePoints.end(), std::back_inserter(m_lineVertices), [&color](const glm::vec2& v) {return Vertex{ v,color }; });
+}
+
+void Renderer::endBatch()
+{
+    // 所有图元添加完毕，上传数据到GPU并绘制
+    flush();
+}
+
+void Renderer::flush()
+{
+    m_shader->use();
+    // 1. 绘制所有线段
+    if (!m_lineVertices.empty()) {
+        glBindVertexArray(m_lineVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
+        // 将线段顶点数据一次性上传到GPU
+        glBufferData(GL_ARRAY_BUFFER, m_lineVertices.size() * sizeof(Vertex), m_lineVertices.data(), GL_DYNAMIC_DRAW);
+
+        // 位置属性
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+        // 颜色属性
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        // 一次Draw Call绘制所有线段！参数：绘制模式，起始索引，顶点数量
+        glDrawArrays(GL_LINE_STRIP, 0, m_lineVertices.size());
+        glBindVertexArray(0);
+    }
+
+    // 2. 绘制所有点
+    if (!m_pointVertices.empty()) {
+        glPointSize(10);
+        glBindVertexArray(m_pointVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_pointVBO);
+        glBufferData(GL_ARRAY_BUFFER, m_pointVertices.size() * sizeof(Vertex), m_pointVertices.data(), GL_DYNAMIC_DRAW);
+        // 位置属性
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+        // 颜色属性
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glDrawArrays(GL_POINTS, 0, m_pointVertices.size());
+        glBindVertexArray(0);
+    }
 }
 
 void Renderer::cleanup()
@@ -117,75 +193,28 @@ void Renderer::cleanup()
         glDeleteBuffers(1, &m_VBO);
         m_VBO = 0;
     }
-    if (m_shaderProgram) {
-        glDeleteProgram(m_shaderProgram);
-        m_shaderProgram = 0;
-    }
-    
     m_initialized = false;
 }
 
-// 着色器编译辅助函数（与之前实现相同）
-GLuint Renderer::compileShader(GLenum type, const char* source)
+std::vector<glm::vec2> Renderer::generatorBezier(std::vector<glm::vec2>& controllPoints)
 {
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
-    
-    if (!checkShaderCompileStatus(shader)) {
-        glDeleteShader(shader);
-        return 0;
+    if (controllPoints.size() < 3)return std::vector<glm::vec2>();
+    int divCount = 100;
+    float span = 1.0f / divCount;
+    std::vector<glm::vec2> points(divCount);
+    std::function<glm::vec2(std::vector<glm::vec2>&,float)> computerBezierPoint = [&computerBezierPoint](std::vector<glm::vec2>& cps, float t)->glm::vec2 {
+        if (cps.size() == 1)return cps[0];
+        std::vector<glm::vec2> newCps(cps.size() - 1);
+        for (size_t i = 0; i < cps.size()-1; i++)
+        {
+            newCps[i] = cps[i] * (1 - t) + cps[i + 1] * t;
+        }
+      return  computerBezierPoint(newCps, t);
+        };
+    for (size_t i = 0; i < divCount; i++)
+    {
+        points[i]=computerBezierPoint(controllPoints, i * span);
     }
-    return shader;
+    return points;
 }
 
-GLuint Renderer::createShaderProgram(const char* vertexSource, const char* fragmentSource)
-{
-    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
-    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
-    
-    if (vertexShader == 0 || fragmentShader == 0) {
-        return 0;
-    }
-    
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-    
-    if (!checkProgramLinkStatus(program)) {
-        glDeleteProgram(program);
-        program = 0;
-    }
-    
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    
-    return program;
-}
-
-bool Renderer::checkShaderCompileStatus(GLuint shader)
-{
-    GLint success;
-    GLchar infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-        qDebug() << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog;
-        return false;
-    }
-    return true;
-}
-
-bool Renderer::checkProgramLinkStatus(GLuint program)
-{
-    GLint success;
-    GLchar infoLog[512];
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(program, 512, nullptr, infoLog);
-        qDebug() << "ERROR::PROGRAM::LINKING_FAILED\n" << infoLog;
-        return false;
-    }
-    return true;
-}
