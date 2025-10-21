@@ -42,7 +42,8 @@ public:
     void flush(); // 执行实际的绘制命令
     // 资源清理
     void cleanup();
-    std::vector<glm::vec2> generatorBezier(std::vector<glm::vec2>& controllPoints);
+    std::vector<glm::vec2> generatorBezierByRecursion(std::vector<glm::vec2>& controlPoints, int segmentCount);
+    std::vector<glm::vec2> generatorBezierByIterative(std::vector<glm::vec2>& controlPoints, int segmentCount);
 private:
     // OpenGL 对象句柄
     GLuint m_VAO, m_VBO;

@@ -29,21 +29,20 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::createActions()
-{
-   
+{  
     newAct = new QAction(tr("New"), this);
     newAct->setShortcut(tr("Ctrl+N")); 
     newAct->setStatusTip(tr("new ....")); 
     connect(newAct, &QAction::triggered, this, &MainWindow::newFile); 
 
 
-    openAct = new QAction(tr("open"), this);
+    openAct = new QAction(tr("Open"), this);
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("opinging"));
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
 
    
-    exitAct = new QAction(tr("eqit"), this);
+    exitAct = new QAction(tr("Eqit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("......"));
     connect(exitAct, &QAction::triggered, this, &QWidget::close); 
@@ -52,39 +51,65 @@ void MainWindow::createActions()
     aboutAct = new QAction(tr("about"), this);
     aboutAct->setStatusTip(tr("about ...."));
     connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
+
+
+    auto drawPointAct = new QAction("Draw Point", this);
+    connect(drawPointAct, &QAction::triggered, this, &MainWindow::drawPoint);
+    mDrawAction.emplace("DrawPoint", drawPointAct);
+    mDrawAction.emplace("Clear", drawPointAct);
+    mDrawAction.emplace("DrawLine", drawPointAct);
+    mDrawAction.emplace("DrawPolyline", drawPointAct);
+    mDrawAction.emplace("DrawBerizeCurve", drawPointAct);
+    mDrawAction.emplace("DrawBSplineCurve", drawPointAct);
+    mDrawAction.emplace("DrawBerizeSurface", drawPointAct);
+    mDrawAction.emplace("DrawBSplineSurface", drawPointAct);
 }
 
 void MainWindow::createMenus()
 {
-    fileMenu = menuBar()->addMenu(tr("open"));
+    fileMenu = menuBar()->addMenu("File");
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addSeparator(); 
     fileMenu->addAction(exitAct);
 
-    
+    auto clearMenu = menuBar()->addMenu("Clear");
+    clearMenu->addAction(mDrawAction["Clear"]);
+
+    auto drawPointMenu = menuBar()->addMenu("Draw Point");
+    drawPointMenu->addAction(mDrawAction["DrawPoint"]);
+
+    auto drawLineMenu = menuBar()->addMenu("Draw Line");
+    drawLineMenu->addAction(mDrawAction["DrawLine"]);
+    drawLineMenu->addAction(mDrawAction["DrawPolyline"]);
+
+    auto drawArcMenu = menuBar()->addMenu("Draw Arc");
+    drawArcMenu->addAction(mDrawAction["DrawBerizeCurve"]);
+    drawArcMenu->addAction(mDrawAction["DrawBSplineCurve"]);
+
+    auto drawSurfaceMenu = menuBar()->addMenu("Draw Surface");
+    drawSurfaceMenu->addAction(mDrawAction["DrawBerizeSurface"]);
+    drawSurfaceMenu->addAction(mDrawAction["DrawBSplineSurface"]);
+
     helpMenu = menuBar()->addMenu(tr("about"));
     helpMenu->addAction(aboutAct);
 }
 
 void MainWindow::createToolBars()
-{
-    
+{ 
     fileToolBar = addToolBar(tr("createToolBars"));
     fileToolBar->addAction(newAct);
     fileToolBar->addAction(openAct);
 }
 
 void MainWindow::createStatusBar()
-{
-   
+{  
     statusBar()->showMessage(tr("createStatusBar"));
 }
 
 
 void MainWindow::newFile()
 {
-  
     statusBar()->showMessage(tr("new file"), 2000);
 }
 
@@ -101,4 +126,36 @@ void MainWindow::about()
 {
     QMessageBox::about(this, "about",
         "about");
+}
+
+void MainWindow::clearAll()
+{
+}
+
+void MainWindow::drawPoint()
+{
+}
+
+void MainWindow::drawLine()
+{
+}
+
+void MainWindow::drawPolyline()
+{
+}
+
+void MainWindow::drawBerizeCurve()
+{
+}
+
+void MainWindow::drawBSplineCurve()
+{
+}
+
+void MainWindow::drawBerizeSurface()
+{
+}
+
+void MainWindow::drawBSplineSurface()
+{
 }

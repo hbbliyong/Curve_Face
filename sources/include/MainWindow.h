@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
-
+#include <map>
 // 前置声明，避免在头文件中包含大量头文件，加快编译速度
 class QAction;
 class QMenu;
@@ -22,6 +22,14 @@ private slots:
     void openFile();
     void about();
 
+    void clearAll();
+    void drawPoint();
+    void drawLine();
+    void drawPolyline();
+    void drawBerizeCurve();
+    void drawBSplineCurve();
+    void drawBerizeSurface();
+    void drawBSplineSurface();
 private:
     // 初始化函数
     void createActions();
@@ -41,4 +49,6 @@ private:
     QAction* openAct;
     QAction* exitAct;
     QAction* aboutAct;
+
+    std::map<std::string, QAction*> mDrawAction;
 };
