@@ -6,7 +6,7 @@
 class QAction;
 class QMenu;
 class QToolBar;
-class QTextEdit; // 作为中心部件的示例，后续可替换为您的OpenGL部件
+class OglWidget; // 作为中心部件的示例，后续可替换为您的OpenGL部件
 
 class MainWindow : public QMainWindow
 {
@@ -36,7 +36,7 @@ private:
     void createMenus();
     void createToolBars();
     void createStatusBar();
-
+private:
     // 菜单栏
     QMenu* fileMenu;
     QMenu* helpMenu;
@@ -51,4 +51,5 @@ private:
     QAction* aboutAct;
 
     std::map<std::string, QAction*> mDrawAction;
+    OglWidget* mDrawWidget;
 };

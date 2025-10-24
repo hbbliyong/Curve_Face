@@ -153,10 +153,10 @@ void OglWidget::clearAll()
     update();
 }
 
-void OglWidget::setDrawingMode(bool continuous)
+void OglWidget::setDrawingMode(RendererMode mode)
 {
-    m_continuousMode = continuous;
-    m_renderer->setDrawingMode(continuous);
+   // m_continuousMode = continuous;
+    m_renderer->setDrawingMode(mode);
 }
 
 //void OglWidget::lineDrawn(const QPointF& start, const QPointF& end)

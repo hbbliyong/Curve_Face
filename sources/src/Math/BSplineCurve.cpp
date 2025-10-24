@@ -1,10 +1,6 @@
-#include <vector>
-#include <glm/glm.hpp>
+#include "Math/BSPlineCurve.hpp"
 
-//https://blog.csdn.net/m0_46465344/article/details/134538069
-class BSplineCurve {
-public:
-	BSplineCurve(std::vector<glm::vec2>& points, int k):
+BSplineCurve::BSplineCurve(std::vector<glm::vec2>& points, int k):
 	control_points(points),degree(k){
 		//初始化节点向量m=n+k+1,m节点数量,n是控制点数量，k为阶数
 		int m = control_points.size() + degree + 1;
@@ -22,7 +18,7 @@ public:
 		}
 	}
 
-	float BasicFunction(int i, int k, float u) {
+	float BSplineCurve::BasicFunction(int i, int k, float u) {
 		if (k == 0) {
 			if (u >= knot_vector[i] && u < knot_vector[i + 1]) {
 				return 1;
@@ -42,7 +38,7 @@ public:
 		return a * BasicFunction(i, k - 1, u) + b * BasicFunction(i + 1, k - 1, u);
 	}
 
-	glm::vec2 calcuatePoint(float u) {
+	glm::vec2 BSplineCurve::calcuatePoint(float u) {
 		glm::vec2 res(0, 0);
 
 		for (size_t i = 0; i < control_points.size(); i++)
@@ -52,11 +48,6 @@ public:
 		}
 	}
 
-	void draw() {
+	void BSplineCurve::draw() {
 
 	}
-private:
-	std::vector<glm::vec2> control_points;
-	std::vector<float> knot_vector;
-	int degree;
-};

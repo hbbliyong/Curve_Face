@@ -11,15 +11,14 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
-
-    setCentralWidget(new OglWidget(this)); 
+    mDrawWidget = new OglWidget(this);
+    setCentralWidget(mDrawWidget);
 
     createActions(); 
     createMenus();   
-    createToolBars(); 
+   // createToolBars(); 
     createStatusBar(); 
-
-   
+ 
     statusBar()->showMessage(tr("hello world"), 2000);
 }
 
@@ -52,17 +51,39 @@ void MainWindow::createActions()
     aboutAct->setStatusTip(tr("about ...."));
     connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
 
+    auto clearPointAct = new QAction("Clear", this);
+    connect(clearPointAct, &QAction::triggered, this, &MainWindow::clearAll);
 
     auto drawPointAct = new QAction("Draw Point", this);
     connect(drawPointAct, &QAction::triggered, this, &MainWindow::drawPoint);
+
+    auto drawLineAct = new QAction("Draw Line", this);
+    connect(drawLineAct, &QAction::triggered, this, &MainWindow::drawLine);
+
+    auto drawPolylineAct = new QAction("Draw Polyline", this);
+    connect(drawPolylineAct, &QAction::triggered, this, &MainWindow::drawPolyline);
+
+
+    auto drawBerizeCurveAct = new QAction("Draw Berize Curve", this);
+    connect(drawBerizeCurveAct, &QAction::triggered, this, &MainWindow::drawBerizeCurve);
+
+    auto drawBSplineCurveAct = new QAction("Draw BSpline Curve", this);
+    connect(drawBSplineCurveAct, &QAction::triggered, this, &MainWindow::drawBSplineCurve);
+
+    auto drawBerizeSurfaceAct = new QAction("Draw Berize Surface", this);
+    connect(drawBerizeSurfaceAct, &QAction::triggered, this, &MainWindow::drawBerizeSurface);
+
+    auto drawBSplineSurfaceAct = new QAction("Draw BSpline Surface", this);
+    connect(drawBSplineSurfaceAct, &QAction::triggered, this, &MainWindow::drawBSplineSurface);
+
+    mDrawAction.emplace("Clear", clearPointAct);
     mDrawAction.emplace("DrawPoint", drawPointAct);
-    mDrawAction.emplace("Clear", drawPointAct);
-    mDrawAction.emplace("DrawLine", drawPointAct);
-    mDrawAction.emplace("DrawPolyline", drawPointAct);
-    mDrawAction.emplace("DrawBerizeCurve", drawPointAct);
-    mDrawAction.emplace("DrawBSplineCurve", drawPointAct);
-    mDrawAction.emplace("DrawBerizeSurface", drawPointAct);
-    mDrawAction.emplace("DrawBSplineSurface", drawPointAct);
+    mDrawAction.emplace("DrawLine", drawLineAct);
+    mDrawAction.emplace("DrawPolyline", drawPolylineAct);
+    mDrawAction.emplace("DrawBerizeCurve", drawBerizeCurveAct);
+    mDrawAction.emplace("DrawBSplineCurve", drawBSplineCurveAct);
+    mDrawAction.emplace("DrawBerizeSurface", drawBerizeSurfaceAct);
+    mDrawAction.emplace("DrawBSplineSurface", drawBSplineSurfaceAct);
 }
 
 void MainWindow::createMenus()
@@ -130,32 +151,40 @@ void MainWindow::about()
 
 void MainWindow::clearAll()
 {
+    mDrawWidget->clearAll();
 }
 
 void MainWindow::drawPoint()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_POINT);
 }
 
 void MainWindow::drawLine()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_LINE);
 }
 
 void MainWindow::drawPolyline()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_POINT);
 }
 
 void MainWindow::drawBerizeCurve()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_BERIZE_CURVE);
 }
 
 void MainWindow::drawBSplineCurve()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_BSPLINE_CURVE);
 }
 
 void MainWindow::drawBerizeSurface()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_BERIZE_SURFACE);
 }
 
 void MainWindow::drawBSplineSurface()
 {
+    mDrawWidget->setDrawingMode(RendererMode::DRAW_BSPLINE_SURFACE);
 }

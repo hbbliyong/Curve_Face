@@ -1,5 +1,6 @@
 #pragma once
 #include "Renderer.hpp"
+#include "RendererMode.hpp"
 #include  <QOpenGLWidget>
 #include <QMouseEvent>
 #include <glm/glm.hpp>
@@ -14,9 +15,9 @@ public:
 
 	void setRender(std::shared_ptr<Renderer> ptr);
 
-	// ¿ØÖÆº¯Êý
-	void clearAll();          // Çå³ýËùÓÐµãºÍÏß
-	void setDrawingMode(bool continuous); // ÉèÖÃ»æÖÆÄ£Ê½
+
+	void clearAll();          // 
+	void setDrawingMode(RendererMode mode); //
 signals:
 	void pointSelected(const QPointF& point);
 	//void lineDrawn(const QPointF& start, const QPointF& end);
@@ -30,34 +31,34 @@ protected:
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
 private:
-	// ×ø±ê×ª»»£º´°¿Ú×ø±ê ¡ú OpenGL¹éÒ»»¯×ø±ê
+	// ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ OpenGLï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	glm::vec2 windowToOpenGL(const QPoint& windowPoint);
 
-	// »æÖÆ¸¨Öúº¯Êý
+	// ï¿½ï¿½ï¿½Æ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	void drawPoint(const glm::vec2& p, float size = 5.0f);
 	void drawLine(const glm::vec2& start, const glm::vec2& end, float width = 2.0f);
-	void drawPreviewLine(); // »æÖÆÊµÊ±Ô¤ÀÀÏß
+	void drawPreviewLine(); // ï¿½ï¿½ï¿½ï¿½ÊµÊ±Ô¤ï¿½ï¿½ï¿½ï¿½
 
 private:
 	std::shared_ptr<Renderer> m_renderer;
 
-	// »æÖÆÊý¾Ý
-	std::vector<glm::vec2> m_points;     // ËùÓÐÒÑÈ·¶¨µÄµã
-	std::vector<Line> m_lines;       // ËùÓÐÒÑÈ·¶¨µÄÏß¶Î
-	glm::vec2 m_currentPoint;           // µ±Ç°Êó±êÎ»ÖÃ£¨ÓÃÓÚÔ¤ÀÀ£©
-	bool m_hasStartPoint;           // ÊÇ·ñÒÑÑ¡ÔñÆðµã
-	bool m_isDrawing;               // ÊÇ·ñÕýÔÚ»æÖÆ
-	bool m_continuousMode;         // Á¬Ðø»æÖÆÄ£Ê½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	std::vector<glm::vec2> m_points;     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½Äµï¿½
+	std::vector<Line> m_lines;       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ß¶ï¿½
+	glm::vec2 m_currentPoint;           // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½
+	bool m_hasStartPoint;           // ï¿½Ç·ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½
+	bool m_isDrawing;               // ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½
+	bool m_continuousMode;         // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
 
-	// ×ø±ê×ª»»
+	// ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½
 	QPointF windowToNDC(const QPoint& windowPoint);
 	glm::vec2 qtPointToRendererPoint(const QPointF& qtPoint);
 
-	// Êý¾Ý¹ÜÀí
+	// ï¿½ï¿½ï¿½Ý¹ï¿½ï¿½ï¿½
 	void updateRendererData();
 
-	std::vector<QPointF> m_qtPoints;     // ´æ´¢Qt×ø±êµã
-	std::vector<QLineF> m_qtLines;       // ´æ´¢Qt×ø±êÏß¶Î
-	QPointF m_currentQtPoint;            // µ±Ç°Êó±êÎ»ÖÃ£¨Qt×ø±ê£©
+	std::vector<QPointF> m_qtPoints;     // ï¿½æ´¢Qtï¿½ï¿½ï¿½ï¿½ï¿½
+	std::vector<QLineF> m_qtLines;       // ï¿½æ´¢Qtï¿½ï¿½ï¿½ï¿½ï¿½ß¶ï¿½
+	QPointF m_currentQtPoint;            // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Î»ï¿½Ã£ï¿½Qtï¿½ï¿½ï¿½ê£©
 
 };

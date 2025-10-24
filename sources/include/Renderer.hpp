@@ -4,6 +4,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include "RendererMode.hpp"
 struct Vertex {
     glm::vec2 position;
     glm::vec3 color; // 可选，增加颜色属性
@@ -34,7 +35,7 @@ public:
     void setPoints(const std::vector<glm::vec2>& points);
     void setLines(const std::vector<Line>& lines);
     void setCurrentPoint(const glm::vec2& point);
-    void setDrawingMode(bool continuous);
+    void setDrawingMode(RendererMode mode);
     void beginBatch();
     void addPoint(const glm::vec2& position, const glm::vec3& color = { 1.0f, 1.0f, 1.0f });
     void addLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color = { 1.0f, 1.0f, 1.0f });
@@ -66,4 +67,5 @@ private:
     // 对应的OpenGL对象
     GLuint m_pointVAO, m_pointVBO;
     GLuint m_lineVAO, m_lineVBO;
+    RendererMode m_rendererMode;
 };

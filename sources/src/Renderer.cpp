@@ -3,9 +3,9 @@
 #include <iostream>
 #include "Core/Shader.hpp"
 #include <functional>
-Renderer::Renderer() 
-    : m_VAO(0), m_VBO(0),  
-      m_initialized(false), m_viewportWidth(0), m_viewportHeight(0)
+Renderer::Renderer()
+    : m_VAO(0), m_VBO(0),
+    m_initialized(false), m_viewportWidth(0), m_viewportHeight(0), m_rendererMode(RendererMode::DRAW_POINT)
 {
    
 }
@@ -103,8 +103,9 @@ void Renderer::setCurrentPoint(const glm::vec2& point)
 {
 }
 
-void Renderer::setDrawingMode(bool continuous)
+void Renderer::setDrawingMode(RendererMode mode)
 {
+    m_rendererMode = mode;
 }
 
 void Renderer::beginBatch()
