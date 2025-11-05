@@ -12,14 +12,7 @@ void LineRenderer::initGL() {
     if (m_initialized) return;
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
-    m_initialized = true;
-}
 
-void LineRenderer::setPolyline(const std::vector<glm::vec2>& pts, const glm::vec3& color) {
-    m_vertices.clear();
-    m_vertices.reserve(pts.size());
-    for (auto &p : pts) m_vertices.push_back(Vertex{p, color});
-    initGL();
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), GL_DYNAMIC_DRAW);
@@ -28,6 +21,15 @@ void LineRenderer::setPolyline(const std::vector<glm::vec2>& pts, const glm::vec
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
     glBindVertexArray(0);
+
+
+    m_initialized = true;
+}
+
+void LineRenderer::setPolyline(const std::vector<glm::vec2>& pts, const glm::vec3& color) {
+    m_vertices.clear();
+    m_vertices.reserve(pts.size());
+    for (auto &p : pts) m_vertices.push_back(Vertex{p, color});
 }
 
 void LineRenderer::clear() {
@@ -48,4 +50,9 @@ void LineRenderer::draw() {
 
 void LineRenderer::update()
 {
+    initGL();
+    glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), GL_DYNAMIC_DRAW);
+    glBindVertexArray(0);
 }

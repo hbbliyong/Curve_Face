@@ -11,12 +11,6 @@
 
 Renderer::Renderer()
 {
-    m_VAO = 0;
-    m_VBO = 0;
-    m_pointVAO = 0;
-    m_pointVBO = 0;
-    m_lineVAO = 0;
-    m_lineVBO = 0;
     m_initialized = false;
     m_viewportWidth = 800;
     m_viewportHeight = 600;
@@ -85,13 +79,13 @@ void Renderer::setCurrentPoint(const glm::vec2& point)
 void Renderer::setDrawingMode(RendererMode mode)
 {
     m_rendererMode = mode;
+    updateDrawMode();
 }
 
 void Renderer::beginBatch()
 {
     // 每一帧开始前，清空上一帧的数据
-    m_pointVertices.clear();
-    m_lineVertices.clear();
+	cleanup();
 }
 
 void Renderer::addPoint(const glm::vec2& position, const glm::vec3& color)
@@ -133,53 +127,11 @@ void Renderer::flush()
 {
     m_renderer->setDatas(m_pointVertices);
 	m_renderer->draw();
-    //m_shader->use();
-    //// 1. 绘制所有线段
-    //if (!m_lineVertices.empty()) {
-    //    glBindVertexArray(m_lineVAO);
-    //    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-    //    // 将线段顶点数据一次性上传到GPU
-    //    glBufferData(GL_ARRAY_BUFFER, m_lineVertices.size() * sizeof(Vertex), m_lineVertices.data(), GL_DYNAMIC_DRAW);
-
-    //    // 位置属性
-    //    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    //    glEnableVertexAttribArray(0);
-    //    // 颜色属性
-    //    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
-    //    glEnableVertexAttribArray(1);
-
-    //    // 一次Draw Call绘制所有线段！参数：绘制模式，起始索引，顶点数量
-    //    glDrawArrays(GL_LINE_STRIP, 0, m_lineVertices.size());
-    //    glBindVertexArray(0);
-    //}
-
-    //// 2. 绘制所有点
-    //if (!m_pointVertices.empty()) {
-    //    glPointSize(10);
-    //    glBindVertexArray(m_pointVAO);
-    //    glBindBuffer(GL_ARRAY_BUFFER, m_pointVBO);
-    //    glBufferData(GL_ARRAY_BUFFER, m_pointVertices.size() * sizeof(Vertex), m_pointVertices.data(), GL_DYNAMIC_DRAW);
-    //    // 位置属性
-    //    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    //    glEnableVertexAttribArray(0);
-    //    // 颜色属性
-    //    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
-    //    glEnableVertexAttribArray(1);
-    //    glDrawArrays(GL_POINTS, 0, m_pointVertices.size());
-    //    glBindVertexArray(0);
-    //}
 }
 
 void Renderer::cleanup()
 {
-    if (m_VAO) {
-        glDeleteVertexArrays(1, &m_VAO);
-        m_VAO = 0;
-    }
-    if (m_VBO) {
-        glDeleteBuffers(1, &m_VBO);
-        m_VBO = 0;
-    }
+    m_pointVertices.clear();
     m_initialized = false;
 }
 //de Casteljau算法
@@ -221,6 +173,7 @@ std::vector<glm::vec2> Renderer::generatorBezierByIterative(std::vector<glm::vec
 
 void Renderer::updateDrawMode()
 {
+	cleanup();
     // 根据模式委托给子渲染器
     switch (m_rendererMode) {
     case RendererMode::DRAW_POINT:

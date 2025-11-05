@@ -46,8 +46,7 @@ public:
 private:
     void updateDrawMode();
 private:
-    // OpenGL 对象句柄
-    GLuint m_VAO, m_VBO;
+
     std::shared_ptr< Shader> m_shader;
     // 渲染状态
     bool m_initialized;
@@ -57,16 +56,13 @@ private:
     // 渲染数据
     std::vector<glm::vec2> m_points;
     std::vector<Line> m_lines;
+    
     glm::vec2 m_currentPoint;
     bool m_continuousMode;
   
 
     std::vector<Vertex> m_pointVertices;
     std::vector<Vertex> m_lineVertices;
-
-    // 对应的OpenGL对象
-    GLuint m_pointVAO, m_pointVBO;
-    GLuint m_lineVAO, m_lineVBO;
     RendererMode m_rendererMode;
 	std::unique_ptr<IRenderer> m_renderer;
 };

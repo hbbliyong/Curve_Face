@@ -21,7 +21,7 @@ private:
     Shader* m_shader;
     GLuint m_vao{0}, m_vbo{0}, m_ebo{0};
     bool m_initialized{false};
-    std::vector<glm::vec3> m_vertices;
+
     std::vector<unsigned int> m_indices;
 
     // Í¨¹ý IRenderer ¼Ì³Ð

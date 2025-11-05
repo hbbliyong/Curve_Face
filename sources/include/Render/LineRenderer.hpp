@@ -19,11 +19,10 @@ public:
     virtual void cleanup() override {};
 
 private:
-    struct Vertex { glm::vec2 pos; glm::vec3 color; };
+
     Shader* m_shader{nullptr};
     GLuint m_vao{0}, m_vbo{0};
     bool m_initialized{false};
-    std::vector<Vertex> m_vertices;
 
     // Í¨¹ý IRenderer ¼Ì³Ð
     void update() override;

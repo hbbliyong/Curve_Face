@@ -18,8 +18,8 @@ void SurfaceRenderer::initGL() {
 }
 
 void SurfaceRenderer::setMesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices) {
-    m_vertices = vertices;
-    m_indices = indices;
+   // m_vertices = vertices;
+  //  m_indices = indices;
     initGL();
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
