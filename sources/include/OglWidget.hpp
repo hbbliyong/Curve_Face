@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.hpp"
+#include "Render/Renderer.hpp"
 #include "RendererMode.hpp"
 #include  <QOpenGLWidget>
 #include <QMouseEvent>

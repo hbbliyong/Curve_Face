@@ -1,13 +1,27 @@
-#include "Renderer.hpp"
-#include <QDebug>
-#include <iostream>
+#include "Render/Renderer.hpp"
 #include "Core/Shader.hpp"
-#include <functional>
+
+// 引入新子渲染器实现
+#include "Render/PointRenderer.hpp"
+#include "Render/LineRenderer.hpp"
+#include "Render/SurfaceRenderer.hpp"
+#include "Math/BezierCurve.hpp"
+#include <iostream>
+#include <QDebug>
+
 Renderer::Renderer()
-    : m_VAO(0), m_VBO(0),
-    m_initialized(false), m_viewportWidth(0), m_viewportHeight(0), m_rendererMode(RendererMode::DRAW_POINT)
 {
-   
+    m_VAO = 0;
+    m_VBO = 0;
+    m_pointVAO = 0;
+    m_pointVBO = 0;
+    m_lineVAO = 0;
+    m_lineVBO = 0;
+    m_initialized = false;
+    m_viewportWidth = 800;
+    m_viewportHeight = 600;
+	m_rendererMode = RendererMode::CLEAR;
+    
 }
 
 Renderer::~Renderer()
@@ -17,71 +31,36 @@ Renderer::~Renderer()
 
 bool Renderer::initialize()
 {
-    if (m_initialized) {
-        return true;
-    }
-    
-    // 初始化GLAD
+    if (m_initialized) return true;
+
     if (!gladLoadGL()) {
         qDebug() << "Failed to initialize GLAD in Renderer";
         return false;
     }
-    
-    // 输出OpenGL信息
+
     std::cout << "OpenGL Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "OpenGL Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-    
-    // 设置初始OpenGL状态
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    
-    // 定义三角形顶点数据
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
-    
-    // 创建和配置VAO、VBO
-    glGenVertexArrays(1, &m_VAO);
-    glGenBuffers(1, &m_VBO);
-    
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    
-    glGenVertexArrays(1, &m_pointVAO);
-    glGenBuffers(1, &m_pointVBO);
 
-    glGenVertexArrays(1, &m_lineVAO);
-    glGenBuffers(1, &m_lineVBO);
-  //  m_shader = std::make_shared<Shader>("E:/001Code/002CurveAndFace/build/sources/Debug/assets/shaders/Base.vert", "E:/001Code/002CurveAndFace/build/sources/Debug/assets/shaders/Base.frag");
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
     m_shader = std::make_shared<Shader>("assets/shaders/Base.vert", "assets/shaders/Base.frag");
-    
+
+    // 创建并初始化子渲染器
+    m_renderer = std::make_unique<PointRenderer>();
+	m_renderer->setShader(m_shader.get());
+    m_renderer->initGL();
+
     m_initialized = true;
-    qDebug() << "Renderer initialized successfully";
+    qDebug() << "Renderer initialized successfully (split renderers)";
     return true;
 }
 
 void Renderer::render()
 {
- /*   if (!m_initialized) {
-        qDebug() << "Renderer not initialized!";
-        return;
-    }
-    
+    if (!m_initialized) return;
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    m_shader->use();
-    glBindVertexArray(m_VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);*/
+	m_renderer->draw();
 }
 
 void Renderer::resize(int width, int height)
@@ -117,26 +96,31 @@ void Renderer::beginBatch()
 
 void Renderer::addPoint(const glm::vec2& position, const glm::vec3& color)
 {
-    Vertex v;
-    v.position = position;
-    v.color = color;
-    m_pointVertices.push_back(v);
+    m_pointVertices.emplace_back(position,color);
 }
 
 void Renderer::addLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color)
 {
-    // 一条线需要两个顶点
-    //Vertex v1, v2;
-    //v1.position = start; v1.color = color;
-    //v2.position = end;   v2.color = color;
-    //m_lineVertices.push_back(v1);
-    //m_lineVertices.push_back(v2);
+    // 从当前批次点构建控制点集合（原先用 m_pointVertices）
+    std::vector<glm::vec2> controlPoints;
+    controlPoints.reserve(m_pointVertices.size());
+    std::transform(m_pointVertices.begin(), m_pointVertices.end(), std::back_inserter(controlPoints),
+        [](const Vertex& v) { return v.pos; });
+
+    // 如果传入的 start/end 应作为控制点的一部分，按需插入：
+    // controlPoints.insert(controlPoints.begin(), start);
+    // controlPoints.push_back(end);
+
+    // 用 BezierCurve 类生成采样点（将贝塞尔逻辑封装到数学类）
+    BezierCurve bez(controlPoints);
+    auto bezierPoints = bez.sample(100); // 采样数可暴露为参数
+
+    // 把采样点转换为渲染用顶点
     m_lineVertices.clear();
-    std::vector<glm::vec2> points;
-    std::transform(m_pointVertices.begin(), m_pointVertices.end(), std::back_inserter(points), [](const Vertex& v) {return v.position; });
-    
-    auto berizePoints = generatorBezierByIterative(points,100);
-    std::transform(berizePoints.begin(), berizePoints.end(), std::back_inserter(m_lineVertices), [&color](const glm::vec2& v) {return Vertex{ v,color }; });
+    m_lineVertices.reserve(bezierPoints.size());
+    for (const auto& p : bezierPoints) {
+        m_lineVertices.push_back(Vertex{ p, color });
+    }
 }
 
 void Renderer::endBatch()
@@ -147,41 +131,43 @@ void Renderer::endBatch()
 
 void Renderer::flush()
 {
-    m_shader->use();
-    // 1. 绘制所有线段
-    if (!m_lineVertices.empty()) {
-        glBindVertexArray(m_lineVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-        // 将线段顶点数据一次性上传到GPU
-        glBufferData(GL_ARRAY_BUFFER, m_lineVertices.size() * sizeof(Vertex), m_lineVertices.data(), GL_DYNAMIC_DRAW);
+    m_renderer->setDatas(m_pointVertices);
+	m_renderer->draw();
+    //m_shader->use();
+    //// 1. 绘制所有线段
+    //if (!m_lineVertices.empty()) {
+    //    glBindVertexArray(m_lineVAO);
+    //    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
+    //    // 将线段顶点数据一次性上传到GPU
+    //    glBufferData(GL_ARRAY_BUFFER, m_lineVertices.size() * sizeof(Vertex), m_lineVertices.data(), GL_DYNAMIC_DRAW);
 
-        // 位置属性
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-        glEnableVertexAttribArray(0);
-        // 颜色属性
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
-        glEnableVertexAttribArray(1);
+    //    // 位置属性
+    //    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    //    glEnableVertexAttribArray(0);
+    //    // 颜色属性
+    //    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
+    //    glEnableVertexAttribArray(1);
 
-        // 一次Draw Call绘制所有线段！参数：绘制模式，起始索引，顶点数量
-        glDrawArrays(GL_LINE_STRIP, 0, m_lineVertices.size());
-        glBindVertexArray(0);
-    }
+    //    // 一次Draw Call绘制所有线段！参数：绘制模式，起始索引，顶点数量
+    //    glDrawArrays(GL_LINE_STRIP, 0, m_lineVertices.size());
+    //    glBindVertexArray(0);
+    //}
 
-    // 2. 绘制所有点
-    if (!m_pointVertices.empty()) {
-        glPointSize(10);
-        glBindVertexArray(m_pointVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_pointVBO);
-        glBufferData(GL_ARRAY_BUFFER, m_pointVertices.size() * sizeof(Vertex), m_pointVertices.data(), GL_DYNAMIC_DRAW);
-        // 位置属性
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-        glEnableVertexAttribArray(0);
-        // 颜色属性
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glDrawArrays(GL_POINTS, 0, m_pointVertices.size());
-        glBindVertexArray(0);
-    }
+    //// 2. 绘制所有点
+    //if (!m_pointVertices.empty()) {
+    //    glPointSize(10);
+    //    glBindVertexArray(m_pointVAO);
+    //    glBindBuffer(GL_ARRAY_BUFFER, m_pointVBO);
+    //    glBufferData(GL_ARRAY_BUFFER, m_pointVertices.size() * sizeof(Vertex), m_pointVertices.data(), GL_DYNAMIC_DRAW);
+    //    // 位置属性
+    //    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    //    glEnableVertexAttribArray(0);
+    //    // 颜色属性
+    //    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
+    //    glEnableVertexAttribArray(1);
+    //    glDrawArrays(GL_POINTS, 0, m_pointVertices.size());
+    //    glBindVertexArray(0);
+    //}
 }
 
 void Renderer::cleanup()
@@ -231,6 +217,31 @@ std::vector<glm::vec2> Renderer::generatorBezierByIterative(std::vector<glm::vec
         points.push_back(tempPoints[0]);
     }
     return points;
+}
+
+void Renderer::updateDrawMode()
+{
+    // 根据模式委托给子渲染器
+    switch (m_rendererMode) {
+    case RendererMode::DRAW_POINT:
+        m_renderer=std::make_unique<PointRenderer>();
+        break;
+    case RendererMode::DRAW_LINE:
+        m_renderer = std::make_unique<LineRenderer>();
+		break;
+    /*case RendererMode::DRAW_POLYLINE:
+    case RendererMode::DRAW_BERIZE_CURVE:
+    case RendererMode::DRAW_BSPLINE_CURVE:
+       
+    case RendererMode::DRAW_BERIZE_SURFACE:
+    case RendererMode::DRAW_BSPLINE_SURFACE:
+    case RendererMode::DRAW_POLYLINE: */
+        
+    default:
+        m_renderer = std::make_unique<PointRenderer>();
+        break;
+    }
+	m_renderer->setShader(m_shader.get());
 }
 
 std::vector<glm::vec2> Renderer::generatorBezierByRecursion(std::vector<glm::vec2>& controlPoints, int segmentCount)

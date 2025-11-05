@@ -42,3 +42,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
     COMMENT "Copying resource files"
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_target_properties(${PROJECT_NAME}  PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Debug"
+    )
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set_target_properties(${PROJECT_NAME}  PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Release"
+    )
+endif()

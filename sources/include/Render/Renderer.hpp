@@ -5,10 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "RendererMode.hpp"
-struct Vertex {
-    glm::vec2 position;
-    glm::vec3 color; // 可选，增加颜色属性
-};
+#include "IRenderer.hpp"
 
 struct Line {
     Vertex start, end;
@@ -45,6 +42,9 @@ public:
     void cleanup();
     std::vector<glm::vec2> generatorBezierByRecursion(std::vector<glm::vec2>& controlPoints, int segmentCount);
     std::vector<glm::vec2> generatorBezierByIterative(std::vector<glm::vec2>& controlPoints, int segmentCount);
+
+private:
+    void updateDrawMode();
 private:
     // OpenGL 对象句柄
     GLuint m_VAO, m_VBO;
@@ -68,4 +68,5 @@ private:
     GLuint m_pointVAO, m_pointVBO;
     GLuint m_lineVAO, m_lineVBO;
     RendererMode m_rendererMode;
+	std::unique_ptr<IRenderer> m_renderer;
 };

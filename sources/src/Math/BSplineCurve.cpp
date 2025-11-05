@@ -46,6 +46,7 @@ BSplineCurve::BSplineCurve(std::vector<glm::vec2>& points, int k):
 			float basis = BasicFunction(i, degree, u);
 			res+= control_points[i] * basis;
 		}
+		return res;
 	}
 
 	void BSplineCurve::draw() {

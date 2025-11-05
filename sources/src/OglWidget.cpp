@@ -1,5 +1,4 @@
 #include "OglWidget.hpp"
-#include "Renderer.hpp"
 
 OglWidget::OglWidget(QWidget* parent) :
     QOpenGLWidget(parent), m_hasStartPoint(false), m_isDrawing(false),
@@ -40,13 +39,13 @@ void OglWidget::paintGL()
         m_renderer->addPoint(glm::vec2(p.x, p.y), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
-    // 将需要绘制的所有点和线添加到批处理器中
-    for (const auto& line : m_qtLines) {
-        // 转换坐标并添加到批次
-        glm::vec2 start = qtPointToRendererPoint(line.p1());
-        glm::vec2 end = qtPointToRendererPoint(line.p2());
-        m_renderer->addLine(glm::vec2(start.x, start.y), glm::vec2(end.x, end.y), glm::vec3(1.0f, 1.0f, 1.0f));
-    }
+    //// 将需要绘制的所有点和线添加到批处理器中
+    //for (const auto& line : m_qtLines) {
+    //    // 转换坐标并添加到批次
+    //    glm::vec2 start = qtPointToRendererPoint(line.p1());
+    //    glm::vec2 end = qtPointToRendererPoint(line.p2());
+    //    m_renderer->addLine(glm::vec2(start.x, start.y), glm::vec2(end.x, end.y), glm::vec3(1.0f, 1.0f, 1.0f));
+    //}
    
 
     m_renderer->endBatch(); // 结束批次，触发批量绘制
