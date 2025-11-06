@@ -109,13 +109,6 @@ glm::vec2 OglWidget::windowToOpenGL(const QPoint& windowPoint)
     return glm::vec2();
 }
 
-void OglWidget::drawPoint(const glm::vec2& p, float size)
-{
-}
-
-void OglWidget::drawLine(const glm::vec2& start, const glm::vec2& end, float width)
-{
-}
 
 void OglWidget::drawPreviewLine()
 {
@@ -135,14 +128,6 @@ glm::vec2 OglWidget::qtPointToRendererPoint(const QPointF& qtPoint)
         static_cast<float>(qtPoint.y()));
 }
 
-void OglWidget::updateRendererData()
-{
-}
-
-void OglWidget::setRender(std::shared_ptr<Renderer> ptr) {
-   // render = ptr;
-}
-
 void OglWidget::clearAll()
 {
     m_qtPoints.clear();
@@ -154,10 +139,7 @@ void OglWidget::clearAll()
 
 void OglWidget::setDrawingMode(RendererMode mode)
 {
-   // m_continuousMode = continuous;
+    m_qtPoints.clear();
     m_renderer->setDrawingMode(mode);
 }
 
-//void OglWidget::lineDrawn(const QPointF& start, const QPointF& end)
-//{
-//}

@@ -13,7 +13,8 @@ public:
 
     // ¾²Ì¬±ã½Ý½Ó¿Ú
     static std::vector<glm::vec2> sample(const std::vector<glm::vec2>& controlPoints, int segmentCount = 100);
-
+    std::vector<glm::vec2> generatorBezierByRecursion(std::vector<glm::vec2>& controlPoints, int segmentCount);
+    std::vector<glm::vec2> generatorBezierByIterative(std::vector<glm::vec2>& controlPoints, int segmentCount);
 private:
     std::vector<glm::vec2> m_controlPoints;
 };

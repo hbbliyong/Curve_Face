@@ -2,7 +2,7 @@
 
 // 通用渲染器接口，供 Point/Line/Surface 等子渲染器实现
 // 目标：统一生命周期与基本操作，便于在上层统一管理与替换
-
+#include<glm/glm.hpp>
 class Shader;
 struct Vertex {
     glm::vec2 pos;

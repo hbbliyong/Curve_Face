@@ -30,18 +30,17 @@ public:
 
     // 数据更新接口
     void setPoints(const std::vector<glm::vec2>& points);
-    void setLines(const std::vector<Line>& lines);
+
     void setCurrentPoint(const glm::vec2& point);
     void setDrawingMode(RendererMode mode);
     void beginBatch();
     void addPoint(const glm::vec2& position, const glm::vec3& color = { 1.0f, 1.0f, 1.0f });
-    void addLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color = { 1.0f, 1.0f, 1.0f });
+
     void endBatch();
     void flush(); // 执行实际的绘制命令
     // 资源清理
     void cleanup();
-    std::vector<glm::vec2> generatorBezierByRecursion(std::vector<glm::vec2>& controlPoints, int segmentCount);
-    std::vector<glm::vec2> generatorBezierByIterative(std::vector<glm::vec2>& controlPoints, int segmentCount);
+
 
 private:
     void updateDrawMode();
@@ -60,7 +59,6 @@ private:
     glm::vec2 m_currentPoint;
     bool m_continuousMode;
   
-
     std::vector<Vertex> m_pointVertices;
     std::vector<Vertex> m_lineVertices;
     RendererMode m_rendererMode;
