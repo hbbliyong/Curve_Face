@@ -18,8 +18,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(QTROOT_DIR C:/Qt/6.9.2)
 message(${QTROOT_DIR})
-# Qt
-set(Qt6_DIR ${QTROOT_DIR}/msvc2022_64/lib/cmake/Qt6)
+# Qtset(Qt6_DIR ${QTROOT_DIR}/msvc2022_64/lib/cmake/Qt6)
 find_package(Qt6 COMPONENTS 
 Core 
 Gui 

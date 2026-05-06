@@ -1,37 +1,37 @@
 #pragma once
 
-// Í¨ÓÃäÖÈ¾Æ÷½Ó¿Ú£¬¹© Point/Line/Surface µÈ×ÓäÖÈ¾Æ÷ÊµÏÖ
-// Ä¿±ê£ºÍ³Ò»ÉúÃüÖÜÆÚÓë»ù±¾²Ù×÷£¬±ãÓÚÔÚÉÏ²ãÍ³Ò»¹ÜÀíÓëÌæ»»
+// é€šç”¨æ¸²æŸ“å™¨æ¥å£ï¼Œä¾› Point/Line/Surface ç­‰å­æ¸²æŸ“å™¨å®ç°
+// ç›®æ ‡ï¼šç»Ÿä¸€ç”Ÿå‘½å‘¨æœŸä¸åŸºæœ¬æ“ä½œï¼Œä¾¿äºåœ¨ä¸Šå±‚ç»Ÿä¸€ç®¡ç†ä¸æ›¿æ¢
 #include<glm/glm.hpp>
 class Shader;
 struct Vertex {
-    glm::vec2 pos;
-    glm::vec3 color; // ¿ÉÑ¡£¬Ôö¼ÓÑÕÉ«ÊôĞÔ
+	glm::vec3 pos;
+	glm::vec3 color; // å¯é€‰ï¼Œå¢åŠ é¢œè‰²å±æ€§
 };
 
 class IRenderer {
 public:
-    IRenderer() =default;
-    virtual ~IRenderer() = default;
+	IRenderer() = default;
+	virtual ~IRenderer() = default;
 
-    // ÔÚÓĞĞ§µÄ OpenGL ÉÏÏÂÎÄÖĞ³õÊ¼»¯ËùĞèµÄ GL ¶ÔÏó£¨VAO/VBO/EBO µÈ£©
-    virtual void initGL() = 0;
+	// åœ¨æœ‰æ•ˆçš„ OpenGL ä¸Šä¸‹æ–‡ä¸­åˆå§‹åŒ–æ‰€éœ€çš„ GL å¯¹è±¡ï¼ˆVAO/VBO/EBO ç­‰ï¼‰
+	virtual void initGL() = 0;
 
-    // °ó¶¨/ÇĞ»»×ÅÉ«Æ÷
-    virtual void setShader(Shader* shader) = 0;
-    virtual void setDatas(std::vector<Vertex>& vertices) {
+	// ç»‘å®š/åˆ‡æ¢ç€è‰²å™¨
+	virtual void setShader(Shader* shader) = 0;
+	virtual void setDatas(std::vector<Vertex>& vertices) {
 		m_vertices = vertices;
 		update();
-    };
+	};
 
-    // Çå¿ÕÄÚ²¿Êı¾İ£¨¶¥µã»º³åµÈ£©£¬±£³Ö¶ÔÏó¿É¸´ÓÃ
-    virtual void clear() = 0;
-    virtual void update() = 0;
-    // Ö´ĞĞÊµ¼Ê»æÖÆ
-    virtual void draw() = 0;
+	// æ¸…ç©ºå†…éƒ¨æ•°æ®ï¼ˆé¡¶ç‚¹ç¼“å†²ç­‰ï¼‰ï¼Œä¿æŒå¯¹è±¡å¯å¤ç”¨
+	virtual void clear() = 0;
+	virtual void update() = 0;
+	// æ‰§è¡Œå®é™…ç»˜åˆ¶
+	virtual void draw() = 0;
 
-    // ¿ÉÑ¡£º×ÓÀà¿É¸²¸ÇÒÔÇåÀí¶îÍâ×ÊÔ´£¨Ä¬ÈÏ¿ÕÊµÏÖ£©
-    virtual void cleanup() {}
+	// å¯é€‰ï¼šå­ç±»å¯è¦†ç›–ä»¥æ¸…ç†é¢å¤–èµ„æºï¼ˆé»˜è®¤ç©ºå®ç°ï¼‰
+	virtual void cleanup() {}
 protected:
 	std::vector<Vertex> m_vertices;
 };

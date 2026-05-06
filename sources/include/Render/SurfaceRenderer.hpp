@@ -4,26 +4,26 @@
 #include <vector>
 #include "IRenderer.hpp"
 class Shader;
-class SurfaceRenderer :IRenderer{
+class SurfaceRenderer :public IRenderer {
 public:
-    SurfaceRenderer();
-   virtual ~SurfaceRenderer();
+	SurfaceRenderer();
+	virtual ~SurfaceRenderer();
 
-   virtual void initGL()override;
-    void setShader(Shader* shader) { m_shader = shader; }
+	virtual void initGL()override;
+	void setShader(Shader* shader) { m_shader = shader; }
 
-    // ¶¥µã£ºvec3, Ë÷ÒýÈý½ÇÐÎÁÐ±í
-    void setMesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices);
-    virtual   void clear() override;
-    virtual void draw()override;
+	// é¡¶ç‚¹ï¼švec3, ç´¢å¼•ä¸‰è§’å½¢åˆ—è¡¨
+	void setMesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices);
+	virtual void clear() override;
+	virtual void draw() override;
 
 private:
-    Shader* m_shader;
-    GLuint m_vao{0}, m_vbo{0}, m_ebo{0};
-    bool m_initialized{false};
+	Shader* m_shader;
+	GLuint m_vao{ 0 }, m_vbo{ 0 }, m_ebo{ 0 };
+	bool m_initialized{ false };
 
-    std::vector<unsigned int> m_indices;
+	std::vector<unsigned int> m_indices;
 
-    // Í¨¹ý IRenderer ¼Ì³Ð
-    void update() override;
+	// é€šè¿‡ IRenderer ç»§æ‰¿
+	void update() override;
 };
